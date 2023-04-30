@@ -3,6 +3,7 @@ tetris game using pygame, taken from tutorial: https://www.techwithtim.net/tutor
 
 
 game plays within a game loop. logic of game loop is:  
+
   Create grid  
   
   Move piece down the grid until either:  
@@ -18,10 +19,10 @@ game plays within a game loop. logic of game loop is:
     - Display new ‘next piece’.   
     - Update the screen.   
   
-  Check if game is over. 
+  Check if game is over.  
     - If yes,  
       - Update screen with game over message. 
       - End game loop. 
       - Update score. 
-    - If no,   
+    - If no,     
       - Go back to beginning of game loop. 
