@@ -137,8 +137,8 @@ def create_grid(locked_pos={}):  # *
     grid = [[(0,0,0) for _ in range(10)] for _ in range(20)]
 
     #i=row (y), j=column (x)
-    #locked_pos{} is dictionary of position:color pairs
-    #if grid position in locked_pos, set grid[row][column] to color specified in locked_pos{}
+    #locked_pos{} is dictionary of pair:color pairs
+    #if grid position in locked_pos{}, set grid[row][column] to color specified for that locked_pos{} item
     for i in range(len(grid)):
         for j in range(len(grid[i])):
             if (j, i) in locked_pos:
@@ -343,6 +343,7 @@ def draw_window(surface, grid, score=0, last_score = 0):
     draw_grid(surface, grid)
     #pygame.display.update()
 
+
 def main(win):  # *
     last_score = max_score()
     locked_positions = {}
@@ -353,17 +354,22 @@ def main(win):  # *
     current_piece = get_shape()
     next_piece = get_shape()
     clock = pygame.time.Clock()
-    fall_time = 0
-    fall_speed = 0.57
+    fall_time = 0 #track how long since last loop ran
+    fall_speed = 0.57 #how long it takes before each chape starts falling
     level_time = 0
     score = 0
 
     #for as long as the game is running
     #game loop
     while run:
+
+        #constantly update grid
         grid = create_grid(locked_positions)
+
+        #game timing stuff that i don't quite understand yet
         fall_time += clock.get_rawtime()
         level_time += clock.get_rawtime()
+        #track how long it took previous while loop to run
         clock.tick()
 
         if level_time/1000 > 5:
@@ -371,8 +377,9 @@ def main(win):  # *
             if level_time > 0.12:
                 level_time -= 0.005
 
-        #move piece down screen until it gets to an invalid space (i.e. grid square already occupied) or piece hits the bottom of hte grid
-        #set change_piece to true to trigger logic to indicate current_piece is done and need to start new piece
+        #move piece down screen one row
+        # check if piece moves into invalid space (i.e. grid square already occupied) or piece hits the bottom of the grid
+        #if yes, set change_piece to true to go through logic that indicates current_piece is done and need to start new piece
         if fall_time/1000 > fall_speed:
             fall_time = 0
             current_piece.y += 1
@@ -384,6 +391,11 @@ def main(win):  # *
             if event.type == pygame.QUIT:
                 run = False
                 pygame.display.quit()
+
+
+            #remember, if player moves piece down into an occupied grid square, the piece will move back to its previous grid square
+            #in the next run loop, the piece will move down one row, set change_pice to true, and then the change_piece logic will execute.
+            #in other words, the player moving the piece into an occupied grid square will be taken care of in the next run loop, not this current run loop.
 
             #left : move piece to the left
             #right: move piece to the right
@@ -407,16 +419,19 @@ def main(win):  # *
                     if not(valid_space(current_piece, grid)):
                         current_piece.rotation -= 1
 
+        #get all grid squares the tetromino currently occupies
         shape_pos = convert_shape_format(current_piece)
 
-        #when a shape moves into a grid square change grid square to the shape's color
+        #when tetromino moves into a grid square change grid square to the shape's color
         for i in range(len(shape_pos)):
             x, y = shape_pos[i]
             if y > -1:
                 grid[y][x] = current_piece.color
 
-        #if a shape hits the ground a new peice starts
-        #add squares to the locked_positions{} based on where current_piece landed
+        #if a shape hits an occupied grid square or hits the ground a new peice starts (i.e. change_piece == True)
+        # add the grid squares that the tetromino now occupies to locked_positions{}
+            #grid squares will be the key for the dict{} item
+            #value of dict{} item will be the color of the tetromino
         #change current_piece to the next_piece
         # get a new piece for next_piece
         # change_piece is set back to false so don't start a new piece down the board
