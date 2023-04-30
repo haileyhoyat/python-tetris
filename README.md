@@ -2,7 +2,8 @@
 tetris game using pygame, taken from tutorial: https://www.techwithtim.net/tutorials/game-development-with-python/tetris-pygame/tutorial-1/
 
 
-game plays within a game loop. logic of game loop is:  
+The game plays within a game loop.  
+The logic of game loop is:  
 
   Create grid  
   
