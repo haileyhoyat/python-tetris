@@ -9,7 +9,7 @@ The logic of game loop is:
   Create grid  
   
   Move piece down the grid until either:  
-    - piece moves into grid square that is already taken or.  
+    - piece moves into grid square that is already taken   
     - the piece hits the bottom of the grid.   
   
   When the piece is done moving down.   
