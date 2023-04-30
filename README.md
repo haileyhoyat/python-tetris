@@ -1,6 +1,7 @@
 # python-tetris
-tetris game using pygame, taken from tutorial: https://www.techwithtim.net/tutorials/game-development-with-python/tetris-pygame/tutorial-1/
+tetris game using pygame, taken from tutorial: https://www.techwithtim.net/tutorials/game-development-with-python/tetris-pygame/tutorial-1/. 
 
+You can download pygame using the requirements.txt file: pip install -r requirements.txt  
 
 The game plays within a game loop.  
 The logic of game loop is:  
