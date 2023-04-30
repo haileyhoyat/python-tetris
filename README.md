@@ -21,8 +21,8 @@ game plays within a game loop. logic of game loop is:
   
   Check if game is over.  
     - If yes,  
-      - Update screen with game over message. 
-      - End game loop. 
-      - Update score. 
+      - Update screen with game over message.   
+      - End game loop.   
+      - Update score.   
     - If no,     
       - Go back to beginning of game loop. 
