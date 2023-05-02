@@ -386,7 +386,10 @@ def main(win):  # *
     next_piece = get_shape()
     clock = pygame.time.Clock()
     fall_time = 0 #track how long since last loop ran
-    fall_speed = 0.57 #how long it takes before each tetromino falls again, decrease this number to have the tetrominos fall faster
+    #how long it takes before each tetromino falls again, decrease this number to have the tetrominos fall faster
+    #0.17 is super fast
+    #0.57 is super slow
+    fall_speed = 0.27 
     level_time = 0
     score = 0
 
