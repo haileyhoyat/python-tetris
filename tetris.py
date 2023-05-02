@@ -1,5 +1,7 @@
 import pygame
 import random
+import ssl
+import csv
 
 pygame.font.init()
 
@@ -133,12 +135,14 @@ class Piece(object):  # *
 
 def create_grid(locked_pos={}):  # *
 
-    #make a 10x20 grid via nested list of tuple representing a color
+    #make a 10x20 grid via nested list
+    #grid[list[]]
+    #each item in list[] is a tuple representing a color
     grid = [[(0,0,0) for _ in range(10)] for _ in range(20)]
 
     #i=row (y), j=column (x)
-    #locked_pos{} is dictionary of pair:color pairs
-    #if grid position in locked_pos{}, set grid[row][column] to color specified for that locked_pos{} item
+    #locked_pos{} is dictionary of {(x,y):color}
+    #if (j,i) grid position is in locked_pos{}, set grid[i][j] to color specified for that locked_pos{} item
     for i in range(len(grid)):
         for j in range(len(grid[i])):
             if (j, i) in locked_pos:
@@ -153,14 +157,25 @@ def convert_shape_format(shape):
 
     positions = []
 
-    #retrieve tetromino orientation
-    #remember modulous retrieves the remainder, so format will always be one of the oreintation of a tetronmio
-    #remember a tetromino is a nested list, so format will be one of the lists inside a tetromino list
+    #retrieve index representing the tetromino orientation
+    #remember modulous retrieves the remainder, so format will always be one of the orientations of a tetronmio
+    #remember a tetromino is a nested list, so format will be one of the lists inside a tetromino list [[format]]
+    #format will be an int indicating the index of the tetromino orientation
+
+    '''
+    example with L tetromino which has (4) orientations
+    0%4 = 0, 1%4 = 1, 2%4 = 2, 3%4 = 3, 4%4 = 0, 5%4 = 1, 6%4 = 2, 7%4 = 3, 8%4 = 0, 9%4 = 1
+    '''
+
     format = shape.shape[shape.rotation % len(shape.shape)]
 
-    #sift through the tetronmino orientation
-    #for each row get the line
-    #for each line, if it's a '0' there's a block, get current x value of the shape and add the column you're now in, get current y value of the shape and add the row you're now in
+    # sift through the tetronmino orientation matrix[], append coordinates of tetromino to positions[], return positions[]
+    # for each line (row) look at each item in line
+    # i tracks index of column (y)
+    # j tracks index of row (x)
+    # if it's a '0' there's a block, 
+        # get current x value of the shape and add j to it
+        # get current y value of the shape and add i to it
     for i, line in enumerate(format):
         row = list(line)
         for j, column in enumerate(row):
@@ -169,6 +184,20 @@ def convert_shape_format(shape):
 
     #offset positions
     #move everything left and up
+
+    '''
+    Looking at the tetromino, notice how the piece is offset in the middle of the matrix.
+    This offset moves the piece up and left inside its matrix so each piece is being referenced from the same spot within the matrix.
+    Don't over think it, but it does make sense about needing to reference the piece from the same top left spot
+
+    ['.....',
+      '..0..',
+      '.000.',
+      '.....',
+      '.....']
+
+    '''
+
     for i, pos in enumerate(positions):
         positions[i] = (pos[0] - 2, pos[1] - 4)
 
@@ -237,13 +266,15 @@ def draw_grid(surface, grid):
 
 
 def clear_rows(grid, locked):
-    #remember, locked represents the locked_positions{} dict of (x,y):color
+    #remember, locked represents the locked_positions{} dict of {(x,y):color}
     
     #keep track of how many rows are cleared
     inc = 0
 
     #starting from the bottom and moving upwards, check if there's a row with no black squares (i.e. a full row)
-    #get position in each row and delete that positon from locked{}
+    #increase inc by (1) for each full row
+    #use ind to track what the topmost full row is (this will be used to move all rows above the topmost full row down the grid)
+    #get position of each square in the full row and delete that positon from locked_positions{}
     for i in range(len(grid)-1, -1, -1):
         row = grid[i]
         if (0,0,0) not in row:
@@ -259,8 +290,8 @@ def clear_rows(grid, locked):
     if inc > 0:
         #for every key in locked{}, sort the keys by the y value of the keys
         for key in sorted(list(locked), key=lambda x: x[1])[::-1]:
-            #if y of current key is above current index of the row, we removed move that row down 
-            #create new key based on row that's moved down
+            #if y of key is less than (i.e. above) the top most full row, that grid's position needs to move down on the grid (i.e. the y position increases by the number of cleared rows) 
+            #create new key based the row that's being moved down
             #add new key to dictionary, set new key to color of old key
             x, y = key
             if y < ind:
@@ -420,9 +451,10 @@ def main(win):  # *
                         current_piece.rotation -= 1
 
         #get all grid squares the tetromino currently occupies
+        #will return list[] of grid squares tetromino occupies
         shape_pos = convert_shape_format(current_piece)
 
-        #when tetromino moves into a grid square change grid square to the shape's color
+        #for each grid square tetromino occupies, change the grid square to the tetromino's color
         for i in range(len(shape_pos)):
             x, y = shape_pos[i]
             if y > -1:
@@ -435,7 +467,7 @@ def main(win):  # *
         #change current_piece to the next_piece
         # get a new piece for next_piece
         # change_piece is set back to false so don't start a new piece down the board
-        # calculate score based on if any rows clear, and add 10pts for each row cleared 
+        # calculate score based on if any rows clear, and add 10pts for each row cleared
         if change_piece:
             for pos in shape_pos:
                 p = (pos[0], pos[1])
