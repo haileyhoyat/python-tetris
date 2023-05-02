@@ -386,7 +386,7 @@ def main(win):  # *
     next_piece = get_shape()
     clock = pygame.time.Clock()
     fall_time = 0 #track how long since last loop ran
-    fall_speed = 0.57 #how long it takes before each chape starts falling
+    fall_speed = 0.57 #how long it takes before each tetromino falls again, decrease this number to have the tetrominos fall faster
     level_time = 0
     score = 0
 
@@ -397,10 +397,10 @@ def main(win):  # *
         #constantly update grid
         grid = create_grid(locked_positions)
 
-        #game timing stuff that i don't quite understand yet
-        fall_time += clock.get_rawtime()
+        #track how long since last loop ran, add that time to fall_time(), ensures game runs at same pace on every OS
+        #get_rawtime(): the number of milliseconds that have passed between the previous two calls to Clock.tick()  
+        fall_time += clock.get_rawtime() 
         level_time += clock.get_rawtime()
-        #track how long it took previous while loop to run
         clock.tick()
 
         if level_time/1000 > 5:
